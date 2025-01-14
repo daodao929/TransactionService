@@ -7,5 +7,5 @@ public record Transaction(String transactionId,
                           BigDecimal amount,
                           String currency,
                           TransactionResult result,
-                          Instant created) {}
-
+                          Instant created,
+                          Instant lastUpdated) { }
