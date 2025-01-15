@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +64,7 @@ public class TransactionService {
     @Cacheable(value = "transactions", key = "#page + '-' + #size")
     public Page<Transaction> getTransactions(int page, int size) {
         return transactionEntityRepositoryWithPaging
-                .findAll(PageRequest.of(page, size))
+                .findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "created")))
                 .map(TransactionEntity::toTransaction);
     }
 }
