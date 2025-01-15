@@ -60,8 +60,6 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_400_when_save_transaction_given_invalid_info() throws Exception {
-        when(transactionService.saveTransaction(any(TransactionRequest.class))).thenReturn("fake-uuid");
-
         mockMvc.perform(post("/transactions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"amount\":199.98}"))
@@ -71,8 +69,6 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_400_when_save_transaction_given_invalid_transaction_result() throws Exception {
-        when(transactionService.saveTransaction(any(TransactionRequest.class))).thenReturn("fake-uuid");
-
         mockMvc.perform(post("/transactions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"result\":\"invalid\"}"))
