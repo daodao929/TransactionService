@@ -17,6 +17,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@CrossOrigin
 public class TransactionController {
 
     @Autowired
