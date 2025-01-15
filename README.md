@@ -7,44 +7,154 @@ docker-compose up transaction-app
 Then can access application via http://localhost:8080
 
 ## Major function
-### list all transactions
+### List Transactions
+  #### Endpoint: GET /transactions
+  Description: Retrieves a paginated list of transactions
+  
+**Request Parameters**
+- page (optional): int, default=0
+- size (optional): int, default=10
+
+**Response**
+  - Status: 200 OK
+  - Body: Page<Transaction>
+
+**Example**
+  
 GET http://localhost:8080/transactions?page=0&size=10
-```shell
-curl --location 'http://localhost:8080/transactions?page=0&size=33'
+  
+Response:
+```json
+  {
+   "content": [
+      {
+         "transactionId": "TX001",
+         "transactionType": "PAYMENT",
+         "amount": 100.00,
+         "currency": "USD",
+         "result": "SUCCESS",
+         "created": "2025-01-15T14:15:38.196346Z",
+         "lastUpdated": "2025-01-15T14:15:38.196346Z"
+      }
+   ],
+   "pageable": {
+      "pageNumber": 0,
+      "pageSize": 1,
+      "sort": {
+         "empty": true,
+         "sorted": false,
+         "unsorted": true
+      },
+      "offset": 0,
+      "paged": true,
+      "unpaged": false
+   },
+   "last": false,
+   "totalPages": 30,
+   "totalElements": 30,
+   "size": 1,
+   "number": 0,
+   "sort": {
+      "empty": true,
+      "sorted": false,
+      "unsorted": true
+   },
+   "first": true,
+   "numberOfElements": 1,
+   "empty": false
+}
 ```
 
-### insert a new transaction
-POST http://localhost:8080/transactions
+### Create Transaction
+#### Endpoint: POST /transactions
+Description: Creates a new transaction
 
-400 - invalid information
-
-```shell
-curl --location 'http://localhost:8080/transactions' \
---header 'Content-Type: application/json' \
---data '{
-    "transactionId": "test111",
-    "transactionType": "PAYMENT",
-    "amount": 199.99,
-    "currency": "AUD",
-    "result": "FAILURE"
-}'
+**Request Body**
+```json
+{
+   "transactionId": "test111",
+   "transactionType": "PAYMENT",
+   "amount": 199.99,
+   "currency": "AUD",
+   "result": "FAILURE"
+}
+```
+**Response**
+  - Status: 201 Created
+  - Body: Transaction
+  
+**Example**
+ 
+ POST http://localhost:8080/transactions
+  
+Response body: 
+```json
+  {
+   "transactionId": "test111",
+   "transactionType": "PAYMENT",
+   "amount": 199.99,
+   "currency": "AUD",
+   "result": "FAILURE",
+   "created": "2025-01-15T14:44:55.461957675Z",
+   "lastUpdated": "2025-01-15T14:44:55.461958717Z"
+  }
 ```
 
-### delete a new transaction
-DELETE http://localhost:8080/transactions/TX001
-```shell
-curl --location --request DELETE 'http://localhost:8080/transactions/TX001' 
-```
-404 - transaction not found
 
-### update a transaction
-Could update amount, transactionResult or currency of an existing transaction
-PUT http://localhost:8080/transactions/transactions/TX002?amount=19999.00&
+### Delete Transaction
+#### Endpoint: DELETE /transactions/{transactionId}
+  Description: Deletes a specific transaction
 
-```shell
-curl --location --request PUT 'http://localhost:8080`/transactions/TX002?amount=19999.00`' 
+**Path Parameters**
+  - transactionId: string
+
+**Response**
+  - Status: 200 OK
+  - Body: "Transaction deleted successfully"
+  - Status: 404 Not Found (if transaction doesn't exist)
+
+**Example**
+
+  DELETE http://localhost:8080/transactions/TX001
+
+### Update Transaction
+#### Endpoint: PUT /transactions/{transactionId}
+Description: Updates specific fields of an existing transaction
+
+**Path Parameters**
+  - transactionId: string
+
+**Query Parameters (all optional)**
+  - amount: BigDecimal
+  - transactionResult: TransactionResult enum
+  - currency: string
+
+**Response**
+  - Status: 200 OK
+  - Body: Updated Transaction
+  - Status: 404 Not Found (if transaction doesn't exist)
+
+**Example**
+  
+PUT http://localhost:8080/transactions/TX001?amount=19999.00&currency=USD
+
+Response body:
+```json
+  {
+   "transactionId": "TX002",
+   "transactionType": "REFUND",
+   "amount": 19999.00,
+   "currency": "USD",
+   "result": "FAILURE",
+   "created": "2025-01-15T14:15:38.196346Z",
+   "lastUpdated": "2025-01-15T14:15:38.196346Z"
+  }
 ```
-404 - transaction not found
+**Error Responses**
+  - 400 Bad Request: Invalid input data
+  - 404 Not Found: Transaction not found
+  - 500 Internal Server Error: Server-side error
+
 
 ## How to run stress test
 This script performs load testing for the Transaction API endpoints.
