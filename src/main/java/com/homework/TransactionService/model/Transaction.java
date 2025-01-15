@@ -9,4 +9,5 @@ public record Transaction(String transactionId,
                           String currency,
                           TransactionResult result,
                           Instant created,
-                          Instant lastUpdated) { }
+                          Instant lastUpdated) {
+}

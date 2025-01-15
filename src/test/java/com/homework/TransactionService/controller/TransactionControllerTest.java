@@ -10,6 +10,9 @@ import com.homework.TransactionService.service.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,8 +22,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -39,23 +41,25 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_200_when_get_transactions_given_have_one_transaction() throws Exception {
-        when(transactionService.getTransactions()).thenReturn(
-                List.of(new Transaction("c-123", TransactionType.PAYMENT, new BigDecimal("13.34"), "USD", TransactionResult.SUCCESS, Instant.parse("2025-01-14T14:07:02Z"), Instant.parse("2025-01-14T16:07:02Z"))));
+        Page<Transaction> mockData = createMockResponse();
+        when(transactionService.getTransactions(0, 1)).thenReturn(mockData);
 
-        mockMvc.perform(get("/transactions"))
+        mockMvc.perform(get("/transactions?page=0&size=1"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{\"transactionId\":\"c-123\",\"transactionType\":\"PAYMENT\",\"amount\":13.34,\"currency\":\"USD\",\"result\":\"SUCCESS\",\"created\":\"2025-01-14T14:07:02Z\",\"lastUpdated\":\"2025-01-14T16:07:02Z\"}]"));
+                .andExpect(content().json("{\"content\":[{\"transactionId\":\"T001\",\"transactionType\":\"PAYMENT\",\"amount\":100.50,\"currency\":\"USD\",\"result\":\"SUCCESS\",\"created\":\"2025-01-14T14:07:02Z\",\"lastUpdated\":\"2025-01-14T14:07:02Z\"}],\"pageable\":{\"pageNumber\":0,\"pageSize\":1,\"sort\":{\"empty\":true,\"unsorted\":true,\"sorted\":false},\"offset\":0,\"paged\":true,\"unpaged\":false},\"last\":true,\"totalPages\":1,\"totalElements\":1,\"size\":1,\"number\":0,\"sort\":{\"empty\":true,\"unsorted\":true,\"sorted\":false},\"first\":true,\"numberOfElements\":1,\"empty\":false}"));
     }
 
     @Test
     void should_return_201_when_save_transaction_given_valid_info() throws Exception {
-        when(transactionService.saveTransaction(any(TransactionRequest.class))).thenReturn("1-231");
+        when(transactionService.saveTransaction(any(TransactionRequest.class))).thenReturn(new Transaction("T001", TransactionType.PAYMENT, new BigDecimal("100.50"),
+                "USD", TransactionResult.SUCCESS, Instant.parse("2025-01-14T14:07:02Z"),
+                Instant.parse("2025-01-14T14:07:02Z")));
 
         mockMvc.perform(post("/transactions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"transactionId\":\"1-231\",\"transactionType\":\"PAYMENT\",\"amount\":199.98,\"currency\":\"USD\",\"result\":\"SUCCESS\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("1-231"));
+                .andExpect(content().json("{\"transactionId\":\"T001\",\"transactionType\":\"PAYMENT\",\"amount\":100.50,\"currency\":\"USD\",\"result\":\"SUCCESS\",\"created\":\"2025-01-14T14:07:02Z\",\"lastUpdated\":\"2025-01-14T14:07:02Z\"}"));
     }
 
     @Test
@@ -90,17 +94,17 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_200_when_delete_transaction_given_transaction_exist() throws Exception {
-        when(transactionService.deleteTransaction("fake-uuid")).thenReturn("fake-uuid");
+        doNothing().when(transactionService).deleteTransaction("fake-uuid");
 
         mockMvc.perform(delete("/transactions/fake-uuid"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("fake-uuid"));
+                .andExpect(content().string("Transaction deleted successfully"));
     }
 
     @Test
     void should_return_404_when_delete_transaction_given_transaction_not_exist() throws Exception {
-        when(transactionService.deleteTransaction("fake-uuid"))
-                .thenThrow(new TransactionNotFoundException("fake-uuid not exists."));
+        doThrow(new TransactionNotFoundException("fake-uuid not exists."))
+                .when(transactionService).deleteTransaction("fake-uuid");
 
         mockMvc.perform(delete("/transactions/fake-uuid"))
                 .andExpect(status().isNotFound())
@@ -110,7 +114,7 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_200_when_update_transaction_given_valid_info() throws Exception {
-        when(transactionService.updateTransaction(anyString(), any(TransactionRequest.class))).thenReturn(
+        when(transactionService.updateTransaction(anyString(), any(), any(), any())).thenReturn(
                 new Transaction("c-123", TransactionType.REFUND, new BigDecimal("13.34"), "USD", TransactionResult.FAILURE, Instant.parse("2025-01-14T14:07:02Z"), Instant.parse("2025-01-14T16:07:02Z")));
 
         mockMvc.perform(put("/transactions/c-123")
@@ -122,7 +126,7 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_404_when_update_transaction_given_transaction_not_exist() throws Exception {
-        when(transactionService.updateTransaction(anyString(), any(TransactionRequest.class)))
+        when(transactionService.updateTransaction(anyString(), any(), any(), any()))
                 .thenThrow(new TransactionNotFoundException("Transaction fake-uuid does not exists."));
 
         mockMvc.perform(put("/transactions/fake-uuid")
@@ -134,7 +138,7 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_400_when_update_transaction_given_transactionId_does_not_match() throws Exception {
-        when(transactionService.updateTransaction(anyString(), any(TransactionRequest.class)))
+        when(transactionService.updateTransaction(anyString(), any(), any(), any()))
                 .thenThrow(new IllegalArgumentException("Transaction id does not match."));
 
         mockMvc.perform(put("/transactions/fake-uuid")
@@ -142,5 +146,16 @@ public class TransactionControllerTest {
                         .content("{\"transactionId\":\"1-1234\",\"transactionType\":\"REFUND\",\"amount\":13.34,\"currency\":\"USD\",\"result\":\"FAILURE\"}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json("{\"status\":400,\"message\":\"Transaction id does not match.\"}"));
+    }
+
+    private Page<Transaction> createMockResponse() {
+        List<Transaction> transactions = List.of(
+                new Transaction("T001", TransactionType.PAYMENT, new BigDecimal("100.50"),
+                        "USD", TransactionResult.SUCCESS, Instant.parse("2025-01-14T14:07:02Z"),
+                        Instant.parse("2025-01-14T14:07:02Z")));
+
+        PageRequest pageable = PageRequest.of(0, 1); // Page 0, size 3
+
+        return new PageImpl<>(transactions, pageable, 1); // Total elements = 10
     }
 }

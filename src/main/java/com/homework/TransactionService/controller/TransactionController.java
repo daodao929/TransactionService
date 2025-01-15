@@ -2,14 +2,17 @@ package com.homework.TransactionService.controller;
 
 import com.homework.TransactionService.controller.dto.TransactionRequest;
 import com.homework.TransactionService.model.Transaction;
+import com.homework.TransactionService.model.TransactionResult;
 import com.homework.TransactionService.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,27 +23,30 @@ public class TransactionController {
     private TransactionService transactionService;
 
     @GetMapping("/transactions")
-    public ResponseEntity<List<Transaction>> getTransaction() {
-        List<Transaction> result = transactionService.getTransactions();
+    public ResponseEntity<Page<Transaction>> getTransaction(@RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "10") int size) {
+        Page<Transaction> result = transactionService.getTransactions(page, size);
         return ResponseEntity.ok().body(result);
     }
 
     @PostMapping("/transactions")
-    public ResponseEntity<String> saveTransaction(@RequestBody TransactionRequest transactionRequest) {
-        String result = transactionService.saveTransaction(transactionRequest);
+    public ResponseEntity<Transaction> saveTransaction(@RequestBody TransactionRequest transactionRequest) {
+        Transaction result = transactionService.saveTransaction(transactionRequest);
         return ResponseEntity.status(201).body(result);
     }
 
     @DeleteMapping("/transactions/{transactionId}")
     public ResponseEntity<String> saveTransaction(@PathVariable("transactionId") String transactionId) {
-        String result = transactionService.deleteTransaction(transactionId);
-        return ResponseEntity.ok().body(result);
+        transactionService.deleteTransaction(transactionId);
+        return ResponseEntity.ok("Transaction deleted successfully");
     }
 
     @PutMapping("/transactions/{transactionId}")
     public ResponseEntity<Transaction> saveTransaction(@PathVariable("transactionId") String transactionId,
-                                                  @RequestBody TransactionRequest transactionRequest) {
-        Transaction result = transactionService.updateTransaction(transactionId, transactionRequest);
+                                                       @RequestParam Optional<BigDecimal> amount,
+                                                       @RequestParam Optional<TransactionResult> transactionResult,
+                                                       @RequestParam Optional<String> currency) {
+        Transaction result = transactionService.updateTransaction(transactionId, amount, transactionResult, currency);
         return ResponseEntity.ok().body(result);
     }
 }
