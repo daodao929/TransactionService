@@ -1,10 +1,12 @@
 package com.homework.TransactionService.repository.data;
 
 import com.homework.TransactionService.controller.dto.TransactionRequest;
+import com.homework.TransactionService.exception.DuplicateTransactionException;
+import com.homework.TransactionService.exception.TransactionNotFoundException;
 import com.homework.TransactionService.model.Transaction;
 import com.homework.TransactionService.model.TransactionResult;
+import com.homework.TransactionService.model.TransactionType;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,11 +23,11 @@ public class TransactionDB {
     public TransactionDB() {
         IntStream.range(0, 10).forEach(i -> {
             String uniqueId = generateUniqueId();
-            transactions.put(uniqueId+"1", new Transaction(uniqueId+"1", new BigDecimal("12.13"), "USD",
+            transactions.put(uniqueId+"1", new Transaction(uniqueId+"1", TransactionType.PAYMENT, new BigDecimal("12.13"), "USD",
                     TransactionResult.SUCCESS, Instant.now(), Instant.now()));
-            transactions.put(uniqueId+"2", new Transaction(uniqueId+"2", new BigDecimal("12.13"), "USD",
+            transactions.put(uniqueId+"2", new Transaction(uniqueId+"2", TransactionType.REFUND, new BigDecimal("12.13"), "USD",
                     TransactionResult.DECLINED, Instant.now(), Instant.now()));
-            transactions.put(uniqueId+"3", new Transaction(uniqueId+"3", new BigDecimal("12.13"), "USD",
+            transactions.put(uniqueId+"3", new Transaction(uniqueId+"3", TransactionType.PAYMENT, new BigDecimal("12.13"), "USD",
                     TransactionResult.FAILURE, Instant.now(), Instant.now()));
         });
     }
@@ -35,21 +37,34 @@ public class TransactionDB {
     }
 
     public String saveTransaction(TransactionRequest request) {
-        String transactionId = generateUniqueId();
-        transactions.put(transactionId, new Transaction(transactionId, request.amount(), request.currency(),
-                request.result(), Instant.now(), Instant.now()));
+        String transactionId = request.transactionId();
+        if(transactions.containsKey(transactionId)){
+            throw new DuplicateTransactionException("Transaction " + transactionId + " already exists");
+        }
+        transactions.put(transactionId, new Transaction(transactionId, request.transactionType(), request.amount(),
+                request.currency(), request.result(), Instant.now(), Instant.now()));
+
         return transactionId;
     }
 
     public String deleteTransaction(String transactionId) {
+        if(!transactions.containsKey(transactionId)) {
+            throw new TransactionNotFoundException("Transaction " + transactionId + " does not exists.");
+        }
         deletedTransactions.put(transactionId, transactions.get(transactionId));
         transactions.remove(transactionId);
         return transactionId;
     }
 
     public Transaction updateTransaction(String transactionId, TransactionRequest request) {
+        if(!transactions.containsKey(transactionId)) {
+            throw new TransactionNotFoundException("Transaction " + transactionId + " does not exists.");
+        }
+        if(!transactionId.equals(request.transactionId())) {
+            throw new IllegalArgumentException("Transaction id does not match.");
+        }
         Transaction originalTransaction = transactions.get(transactionId);
-        Transaction newTransaction = new Transaction(transactionId, request.amount(), request.currency(),
+        Transaction newTransaction = new Transaction(transactionId, request.transactionType(), request.amount(), request.currency(),
                 request.result(), originalTransaction.created(), Instant.now());
         transactions.put(transactionId, newTransaction);
         return newTransaction;
