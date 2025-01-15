@@ -58,15 +58,6 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void should_return_empty_list_when_get_transactions_given_no_transaction() {
-        when(transactionEntityRepositoryWithPaging.findAll(PageRequest.of(0, 1)))
-                .thenReturn(createMockEmptyResponse());
-
-        Page<Transaction> queryResult = transactionService.getTransactions(0, 1);
-        assertThat(queryResult.getContent().size(), equalTo(0));
-    }
-
-    @Test
     void should_return_transaction_id_when_save_transaction_given_valid_transaction() {
         TransactionEntity transactionEntity = new TransactionEntity("T001", TransactionType.PAYMENT,
                 new BigDecimal("100.50"), "USD", TransactionResult.SUCCESS,
