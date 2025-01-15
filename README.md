@@ -2,7 +2,7 @@
 
 ## How to start application
 ```shell
-sh start-application.sh
+docker-compose up transaction-app
 ```
 Then can access application via http://localhost:8080
 
@@ -48,6 +48,6 @@ curl --location --request PUT 'http://localhost:8080`/transactions/TX002?amount=
 
 ## How to run stress test
 ```shell
-cd stressTest/
-k6 run stressTest.js
+docker-compose up transaction-app
+docker-compose run stress-test
 ```

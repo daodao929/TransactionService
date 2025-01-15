@@ -1,0 +1,36 @@
+version: '3.4'
+services:
+
+  stress-test:
+    image: grafana/k6:latest
+    volumes:
+      - "./:/app"
+    working_dir: /app/stressTest
+    command: run stressTest.js
+    environment:
+      - SERVICE_HOSTNAME=transaction-app
+    networks:
+      - app-network
+    depends_on:
+      - transaction-app
+
+  transaction-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

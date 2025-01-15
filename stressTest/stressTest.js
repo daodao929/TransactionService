@@ -7,7 +7,7 @@ export let options = {
 };
 
 export default function () {
-    let response = http.get('http://localhost:8080/transactions');
+    let response = http.get('http://transaction-app:8080/transactions?page=0&size=5');
 
     check(response, {
         'status is 200': (r) => r.status === 200,
