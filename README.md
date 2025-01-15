@@ -47,7 +47,21 @@ curl --location --request PUT 'http://localhost:8080`/transactions/TX002?amount=
 404 - transaction not found
 
 ## How to run stress test
-```shell
-docker-compose up transaction-app
-docker-compose run stress-test
-```
+This script performs load testing for the Transaction API endpoints.
+1. Test Scenarios:
+ * Ramp-up: Gradually increase load from 0 to 20 users over 30 seconds
+ * Steady load: Maintain 20 concurrent users for 30 seconds 
+2. Success Criteria:
+ * 95% of requests should complete under 200ms
+ * Error rate should be less than 1%
+3. How to run:
+ * Start the application: 
+   ```shell
+    docker-compose up transaction-app
+    ```
+ * Run the test: docker-compose run stress-test
+    ```shell
+    docker-compose run stress-test
+    ```
+FYI there is a stress test report named stressTestReport.txt under folder stressTest/,
+you also could run command to do it again.
