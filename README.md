@@ -1,6 +1,7 @@
 # Transaction Service
 
 ## How to start application
+NOTE: [Front end application](https://github.com/daodao929/Banking-Transaction-Manager) provide a simple UI for this service.
 ```shell
 docker-compose up transaction-app
 ```
