@@ -17,6 +17,14 @@ public class TransactionRepository {
         return db.getAll();
     }
 
+    public Transaction findById(String transactionId) {
+        return db.findTransactionById(transactionId);
+    }
+
+    public Transaction findDeletedTransactionById(String transactionId) {
+        return db.findDeletedTransactionById(transactionId);
+    }
+
     public String save(TransactionRequest transactionRequest){
         return db.saveTransaction(transactionRequest);
     }

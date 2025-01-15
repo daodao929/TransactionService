@@ -39,7 +39,7 @@ public class TransactionControllerTest {
 
     @Test
     void should_return_200_when_get_transactions_given_have_one_transaction() throws Exception {
-        when(transactionService.getTransaction()).thenReturn(
+        when(transactionService.getTransactions()).thenReturn(
                 List.of(new Transaction("c-123", TransactionType.PAYMENT, new BigDecimal("13.34"), "USD", TransactionResult.SUCCESS, Instant.parse("2025-01-14T14:07:02Z"), Instant.parse("2025-01-14T16:07:02Z"))));
 
         mockMvc.perform(get("/transactions"))

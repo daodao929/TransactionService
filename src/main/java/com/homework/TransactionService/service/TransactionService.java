@@ -17,7 +17,7 @@ public class TransactionService {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public List<Transaction> getTransaction(){
+    public List<Transaction> getTransactions(){
         return transactionRepository.findAll();
     }
 

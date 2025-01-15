@@ -36,6 +36,14 @@ public class TransactionDB {
         return new ArrayList<>(this.transactions.values());
     }
 
+    public Transaction findTransactionById(String id) {
+        return transactions.get(id);
+    }
+
+    public Transaction findDeletedTransactionById(String id) {
+        return deletedTransactions.get(id);
+    }
+
     public String saveTransaction(TransactionRequest request) {
         String transactionId = request.transactionId();
         if(transactions.containsKey(transactionId)){
@@ -49,7 +57,7 @@ public class TransactionDB {
 
     public String deleteTransaction(String transactionId) {
         if(!transactions.containsKey(transactionId)) {
-            throw new TransactionNotFoundException("Transaction " + transactionId + " does not exists.");
+            throw new TransactionNotFoundException("Transaction " + transactionId + " does not exist.");
         }
         deletedTransactions.put(transactionId, transactions.get(transactionId));
         transactions.remove(transactionId);
@@ -58,7 +66,7 @@ public class TransactionDB {
 
     public Transaction updateTransaction(String transactionId, TransactionRequest request) {
         if(!transactions.containsKey(transactionId)) {
-            throw new TransactionNotFoundException("Transaction " + transactionId + " does not exists.");
+            throw new TransactionNotFoundException("Transaction " + transactionId + " does not exist.");
         }
         if(!transactionId.equals(request.transactionId())) {
             throw new IllegalArgumentException("Transaction id does not match.");
