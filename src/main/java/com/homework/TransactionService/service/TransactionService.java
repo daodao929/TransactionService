@@ -11,6 +11,8 @@ import com.homework.TransactionService.repository.TransactionEntityRepositoryWit
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class TransactionService {
     @Autowired
     private TransactionEntityRepository transactionEntityRepository;
 
+    @CachePut("transactions")
     public Transaction saveTransaction(TransactionRequest transactionRequest) {
         if(transactionEntityRepository.findByTransactionId(transactionRequest.transactionId()).isPresent()){
             throw new DuplicateTransactionException("Transaction " + transactionRequest.transactionId() + " already exists");
@@ -38,6 +41,7 @@ public class TransactionService {
         return transactionEntityRepository.save(entity).toTransaction();
     }
 
+    @CachePut("transactions")
     @Transactional
     public void deleteTransaction(String transactionId) {
         transactionEntityRepository.findByTransactionId(transactionId)
@@ -45,6 +49,7 @@ public class TransactionService {
         transactionEntityRepository.deleteByTransactionId(transactionId);
     }
 
+    @CachePut("transactions")
     public Transaction updateTransaction(String transactionId, Optional<BigDecimal> amount, Optional<TransactionResult> result, Optional<String> currency) {
         TransactionEntity entity = transactionEntityRepository.findByTransactionId(transactionId)
                 .orElseThrow(() -> new TransactionNotFoundException("Transaction " + transactionId + " does not exist."));
@@ -54,6 +59,7 @@ public class TransactionService {
         return transactionEntityRepository.save(entity).toTransaction();
     }
 
+    @Cacheable("transactions")
     public Page<Transaction> getTransactions(int page, int size) {
         return transactionEntityRepositoryWithPaging
                 .findAll(PageRequest.of(page, size))
