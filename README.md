@@ -175,3 +175,26 @@ This script performs load testing for the Transaction API endpoints.
     ```
 FYI there is a stress test report named stressTestReport.txt under folder stressTest/,
 you also could run command to do it again.
+
+
+## Dependency Purposes
+
+### Core Framework
+- **spring-boot-starter-web**: Provides core Spring MVC capabilities for building RESTful APIs
+- **spring-boot-starter-data-jpa**: Enables JPA-based data access and ORM functionality
+- **spring-boot-starter-validation**: Adds validation support for request/response data
+
+### Database Management
+- **h2**: In-memory database for development and testing
+- **flyway-core**: Database migration and version control
+
+### Caching Solution
+- **caffeine**: High-performance caching library
+- **spring-boot-starter-cache**: Spring's caching abstraction
+
+### Development Tools
+- **lombok**: Reduces boilerplate code through annotations
+- **jetbrains-annotations**: Additional code annotations for better IDE support
+
+### Testing and Quality
+- **spring-boot-starter-test**: Testing framework integration
