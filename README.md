@@ -156,7 +156,7 @@ Response body:
   - 500 Internal Server Error: Server-side error
 
 
-## How to run stress test
+## Stress test
 This script performs load testing for the Transaction API endpoints.
 1. Test Scenarios:
  * Ramp-up: Gradually increase load from 0 to 20 users over 30 seconds

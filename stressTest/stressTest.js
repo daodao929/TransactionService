@@ -1,6 +1,9 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 
+const hostname = __ENV.SERVICE_HOSTNAME || 'localhost';
+const baseUrl = `http://${hostname}:8080`;
+
 export const options = {
   stages: [
     { duration: '30s', target: 20 },
@@ -13,7 +16,7 @@ export const options = {
 };
 
 export default function () {
-    let response = http.get('http://transaction-app:8080/transactions?page=0&size=5');
+    let response = http.get(`${baseUrl}/transactions?page=0&size=5`);
 
     check(response, {
         'status is 200': (r) => r.status === 200,
