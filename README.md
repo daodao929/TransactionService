@@ -5,6 +5,10 @@ NOTE: [Front end application](https://github.com/daodao929/Banking-Transaction-M
 ```shell
 docker-compose up transaction-app
 ```
+use this to force rebuild before run the app:
+```shell
+docker-compose up --build transaction-app
+```
 Then can access application via http://localhost:8080
 
 ## Major function
