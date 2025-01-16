@@ -174,11 +174,11 @@ This script performs load testing for the Transaction API endpoints.
    ```shell
     docker-compose up transaction-app
     ```
- * Run the test: docker-compose run stress-test
+ * Run the test:
     ```shell
     docker-compose run stress-test
     ```
-FYI there is a stress test report named stressTestReport.txt under folder stressTest/,
+FYI there is a stress test report named stressTestReport.txt under folder stressTest,
 you also could run command to do it again.
 
 
